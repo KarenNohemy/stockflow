@@ -8,7 +8,7 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bancocuscatlan</groupId>
+	<groupId>com.mariastore</groupId>
 	<artifactId>inventory-service</artifactId>
 	<version>1.0.0</version>
 	<name/>
