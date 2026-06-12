@@ -37,7 +37,7 @@ public class ProductServiceImpl implements  ProductService{
         Product product;
 
         product = productRepository.findById(id).orElseThrow( ()->
-                new ProductNotFoundException ("Id de producto" + id +  "no existe"));
+                new ProductNotFoundException ("Id de producto " + id +  " no existe"));
 
         return ProductMapper.toResponse(product);
     }
