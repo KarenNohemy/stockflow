@@ -1,4 +1,4 @@
-package com.bancocuscatlan.inventory_service;
+package com.mariastore.inventory_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

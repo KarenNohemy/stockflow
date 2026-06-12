@@ -1,4 +1,4 @@
-package com.bancocuscatlan.inventory_service.entity;
+package com.mariastore.inventory_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

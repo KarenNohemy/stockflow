@@ -1,4 +1,4 @@
-package com.bancocuscatlan.inventory_service;
+package com.mariastore.inventory_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
