@@ -1,0 +1,12 @@
+package com.mariastore.inventory_service.dto.response;
+
+import com.mariastore.inventory_service.entity.Severity;
+
+public record StockAlertResponse (
+        Long productId,
+        String productName,
+        Integer currentStock,
+        Integer minStock,
+        Severity severity
+){
+}

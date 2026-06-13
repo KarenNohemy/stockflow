@@ -1,6 +1,7 @@
 package com.mariastore.inventory_service.service;
 
 import com.mariastore.inventory_service.dto.response.ProductResponse;
+import com.mariastore.inventory_service.dto.response.StockAlertResponse;
 import com.mariastore.inventory_service.entity.Product;
 import com.mariastore.inventory_service.exception.ProductNotFoundException;
 import com.mariastore.inventory_service.mapper.ProductMapper;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,4 +44,5 @@ public class ProductServiceImpl implements  ProductService{
 
         return ProductMapper.toResponse(product);
     }
+
 }
