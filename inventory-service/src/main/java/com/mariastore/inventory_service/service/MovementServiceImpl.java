@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,4 +59,26 @@ public class MovementServiceImpl implements  MovementService{
         );
 
     }
+
+    @Override
+    public List<MovementResponse> getMovementHistory(Long productId) {
+
+        productRepository.findById(productId).orElseThrow(
+                ()-> new ProductNotFoundException("El producto no existe")
+        );
+
+        return movementRepository.findByProductId(productId)
+                .stream()
+                .map( movement -> new MovementResponse(
+                        movement.getId(),
+                        movement.getProductId(),
+                        movement.getType(),
+                        movement.getQuantity(),
+                        movement.getReason(),
+                        movement.getTimestamp()
+                        )
+
+                ).toList();
+    }
+
 }
