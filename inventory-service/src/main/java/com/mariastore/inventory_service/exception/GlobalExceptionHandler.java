@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(), 422, "Insufficient Stock", ex.getMessage(), request.getRequestURI()
         );
 
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(error);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
 }

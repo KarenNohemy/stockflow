@@ -4,36 +4,23 @@ spring:
 
   datasource:
     url: jdbc:h2:mem:stockflowdb
-    driver-class-name: org.h2.Driver
     username: sa
     password:
 
     hikari:
-      # Escenario de carga media:
-      # permite hasta 10 conexiones concurrentes a la BD
       maximum-pool-size: 10
-
-      # mantiene 5 conexiones listas para reducir latencia
       minimum-idle: 5
-
-      # espera máxima de 30 segundos para obtener una conexión
       connection-timeout: 30000
-
-      # libera conexiones inactivas después de 10 minutos
       idle-timeout: 600000
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-
     hibernate:
       ddl-auto: create-drop
-
     show-sql: true
-
     properties:
       hibernate:
         format_sql: true
-
     defer-datasource-initialization: true
 
   sql:
@@ -45,11 +32,37 @@ spring:
       enabled: true
       path: /h2-console
 
+
+
+resilience4j:
+  ratelimiter:
+    instances:
+      movementHistoryLimiter:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+
+  retry:
+    instances:
+      movementRetry:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+  circuitbreaker:
+    instances:
+      alertsService:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
 server:
   port: 8080
 
 logging:
   level:
-    org:
-      hibernate:
-        SQL: DEBUG
+    org.hibernate.SQL: DEBUG

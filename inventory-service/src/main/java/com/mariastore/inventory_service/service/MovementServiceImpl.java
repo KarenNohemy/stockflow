@@ -10,6 +10,8 @@ import com.mariastore.inventory_service.exception.ProductNotFoundException;
 import com.mariastore.inventory_service.mapper.MovementMapper;
 import com.mariastore.inventory_service.repository.MovementRepository;
 import com.mariastore.inventory_service.repository.ProductRepository;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class MovementServiceImpl implements  MovementService{
     private final ProductRepository productRepository;
     private final MovementRepository movementRepository;
 
+    @Retry(name = "movementRetry")
+    @Override
     public MovementResponse registerMovement (MovementRequest  request){
 
         Product product = productRepository.findById(request.idProduct()).orElseThrow( ()->
@@ -54,6 +58,7 @@ public class MovementServiceImpl implements  MovementService{
 
     }
 
+    @RateLimiter(name = "movementHistoryLimiter")
     @Override
     public List<MovementResponse> getMovementHistory(Long productId) {
 
