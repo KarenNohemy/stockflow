@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RequestNotPermitted.class)
     public ResponseEntity<ErrorResponse> handleRateLimit(
-            RequestNotPermitted ex, 
+            RequestNotPermitted ex,
             HttpServletRequest request
     ) {
 

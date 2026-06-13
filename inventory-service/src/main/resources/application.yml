@@ -66,3 +66,23 @@ server:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+info:
+  app:
+    name: inventory-service
+    description: Inventory Service for StockFlow monitoring
+    version: 1.0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, info
+
+  endpoint:
+    health:
+      show-details: always
+
+  info:
+    env:
+      enabled: true

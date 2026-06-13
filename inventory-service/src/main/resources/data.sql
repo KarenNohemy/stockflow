@@ -20,3 +20,6 @@ INSERT INTO products (sku, name, category, current_stock, min_stock, unit_price)
 ('SKU-011', 'Desinfectante Limon Persa', 'HOME_CARE', 50, 5, 120.5),
 ('SKU-012', 'Desinfectante Manzana Verde', 'HOME_CARE', 45, 5, 120.5),
 ('SKU-013', 'Jabón para lavar trastes', 'HOME_CARE', 20, 2, 120.5);
+
+--Prueba para acuator
+--UPDATE products SET current_stock = 10 WHERE id IN (1,2,3,4,5);
