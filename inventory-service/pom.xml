@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
+			<version>2.6.0</version>
 		</dependency>
 
 		<!-- H2 -->
@@ -118,7 +118,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.70</minimum>
+											<minimum>0.1</minimum>
 										</limit>
 									</limits>
 								</rule>

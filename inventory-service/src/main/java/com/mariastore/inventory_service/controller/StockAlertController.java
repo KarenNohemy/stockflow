@@ -2,6 +2,8 @@ package com.mariastore.inventory_service.controller;
 
 import com.mariastore.inventory_service.dto.response.StockAlertResponse;
 import com.mariastore.inventory_service.service.AlertService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class StockAlertController {
 
     private final AlertService alertService;
 
+    @Operation(summary = "Get stock alerts")
+    @ApiResponse(responseCode = "200", description = "Alerts retrieved")
     @GetMapping
     public ResponseEntity<List<StockAlertResponse>> verifyAlerts () {
         return ResponseEntity.ok(alertService.getAlerts());
