@@ -7,6 +7,7 @@ import com.mariastore.inventory_service.entity.MovementType;
 import com.mariastore.inventory_service.entity.Product;
 import com.mariastore.inventory_service.exception.InsufficientStockException;
 import com.mariastore.inventory_service.exception.ProductNotFoundException;
+import com.mariastore.inventory_service.mapper.MovementMapper;
 import com.mariastore.inventory_service.repository.MovementRepository;
 import com.mariastore.inventory_service.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -49,14 +50,7 @@ public class MovementServiceImpl implements  MovementService{
         productRepository.save(product);
         Movement savedMovement = movementRepository.save(movement);
 
-        return new MovementResponse(
-                savedMovement.getId(),
-                savedMovement.getProductId(),
-                savedMovement.getType(),
-                savedMovement.getQuantity(),
-                savedMovement.getReason(),
-                savedMovement.getTimestamp()
-        );
+        return MovementMapper.toResponse(savedMovement);
 
     }
 
@@ -69,16 +63,8 @@ public class MovementServiceImpl implements  MovementService{
 
         return movementRepository.findByProductId(productId)
                 .stream()
-                .map( movement -> new MovementResponse(
-                        movement.getId(),
-                        movement.getProductId(),
-                        movement.getType(),
-                        movement.getQuantity(),
-                        movement.getReason(),
-                        movement.getTimestamp()
-                        )
-
-                ).toList();
+                .map(MovementMapper::toResponse)
+                .toList();
     }
 
 }
