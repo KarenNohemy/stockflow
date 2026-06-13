@@ -31,7 +31,7 @@ public class MovementServiceImpl implements  MovementService{
         if (MovementType.IN.equals(request.type()) ){
             product.setCurrentStock(product.getCurrentStock() + request.quantity());
         }else {
-            if (product.getCurrentStock() < product.getMinStock()){
+            if (product.getCurrentStock() < request.quantity()){
                 throw  new InsufficientStockException("Inventario insuficiente para el producto: " + product.getName());
             }
             product.setCurrentStock(product.getCurrentStock() - request.quantity());
@@ -49,12 +49,12 @@ public class MovementServiceImpl implements  MovementService{
         Movement savedMovement = movementRepository.save(movement);
 
         return new MovementResponse(
-                movement.getId(),
-                movement.getProductId(),
-                movement.getType(),
-                movement.getQuantity(),
-                movement.getReason(),
-                movement.getTimestamp()
+                savedMovement.getId(),
+                savedMovement.getProductId(),
+                savedMovement.getType(),
+                savedMovement.getQuantity(),
+                savedMovement.getReason(),
+                savedMovement.getTimestamp()
         );
 
     }

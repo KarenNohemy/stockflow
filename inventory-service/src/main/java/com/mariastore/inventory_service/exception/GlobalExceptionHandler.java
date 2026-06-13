@@ -23,6 +23,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ErrorResponse> handlerProductNotFound
+            (InsufficientStockException ex, HttpServletRequest request){
+
+        ErrorResponse error = new ErrorResponse (
+                LocalDateTime.now(), 422, "Insufficient Stock", ex.getMessage(), request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(error);
+    }
+
 }
 
 
