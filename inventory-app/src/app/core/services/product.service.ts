@@ -1,29 +1,27 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ApiService } from './api.service';
 import { Product } from '../../shared/models/product.model';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/enviroments';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ProductService {
 
-  private http = inject(HttpClient);
-
-
-private baseUrl = `${environment.apiUrl}/products`;
-
+  private api = inject(ApiService);
 
   getProducts(category?: string, page = 0, size = 10): Observable<any> {
-    let url = `${this.baseUrl}?page=${page}&size=${size}`;
+
+    let query = `?page=${page}&size=${size}`;
 
     if (category) {
-      url += `&category=${category}`;
+      query += `&category=${category}`;
     }
 
-    return this.http.get<any>(url);
+    return this.api.get<any>(`/products${query}`);
   }
 
   getProductById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.baseUrl}/${id}`);
+    return this.api.get<Product>(`/products/${id}`);
   }
 }
