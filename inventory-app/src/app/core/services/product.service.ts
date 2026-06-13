@@ -2,13 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Product } from '../../shared/models/product.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/enviroments';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = 'http://localhost:8080/api/v1/products';
+
+private baseUrl = `${environment.apiUrl}/products`;
+
 
   getProducts(category?: string, page = 0, size = 10): Observable<any> {
     let url = `${this.baseUrl}?page=${page}&size=${size}`;

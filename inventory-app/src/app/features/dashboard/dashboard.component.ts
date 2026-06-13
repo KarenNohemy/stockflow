@@ -1,0 +1,53 @@
+import { Component, inject, signal } from '@angular/core';
+import { InventoryStore } from '../../core/store/inventory.store';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './dashboard.component.html',
+})
+export class DashboardComponent {
+
+  store = inject(InventoryStore);
+  timeout: any;
+
+  constructor() {
+    this.store.loadProducts();
+    this.store.loadAlerts();
+  }
+
+  getStockLabel(product: any): string {
+    if (product.currentStock <= product.minStock * 0.5) {
+      return 'CRITICAL';
+    }
+
+    if (product.currentStock <= product.minStock) {
+      return 'LOW';
+    }
+
+    return 'OK';
+  }
+
+  getStockClass(product: any): string {
+    const status = this.getStockLabel(product);
+
+    switch (status) {
+      case 'CRITICAL':
+        return 'bg-danger';
+      case 'LOW':
+        return 'bg-warning';
+      default:
+        return 'bg-success';
+    }
+  }
+
+  onFilterChange(value: string) {
+    clearTimeout(this.timeout);
+
+    this.timeout = setTimeout(() => {
+      this.store.loadProducts(value);
+    }, 300);
+  }
+}

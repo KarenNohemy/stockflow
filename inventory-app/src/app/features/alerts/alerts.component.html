@@ -1,0 +1,73 @@
+<div class="container mt-4">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Stock Alerts</h3>
+
+    <span class="badge bg-dark">
+      Total: {{ store.alerts().length }}
+    </span>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="store.loading()" class="text-center my-4">
+    <div class="spinner-border text-warning"></div>
+    <p class="mt-2">Loading alerts...</p>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!store.loading() && store.alerts().length === 0"
+       class="alert alert-success text-center">
+    🎉 No active stock alerts
+  </div>
+
+  <!-- ALERT GRID -->
+  <div class="row g-3 mt-2">
+
+    <div class="col-md-6"
+         *ngFor="let a of store.alerts()">
+
+      <div class="card shadow-sm border-0"
+           [ngClass]="getSeverityClass(a)">
+
+        <div class="card-body">
+
+          <!-- TITLE -->
+          <div class="d-flex justify-content-between align-items-start">
+
+            <h5 class="card-title mb-1">
+              {{ a.productName }}
+            </h5>
+
+            <span class="badge"
+                  [ngClass]="{
+                    'bg-danger': a.severity === 'CRITICAL',
+                    'bg-warning text-dark': a.severity === 'LOW'
+                  }">
+              {{ a.severity }}
+            </span>
+
+          </div>
+
+          <hr>
+
+          <!-- STOCK INFO -->
+          <p class="mb-1">
+            <strong>Current Stock:</strong>
+            <span>{{ a.currentStock }}</span>
+          </p>
+
+          <p class="mb-1">
+            <strong>Minimum Stock:</strong>
+            <span>{{ a.minStock }}</span>
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
