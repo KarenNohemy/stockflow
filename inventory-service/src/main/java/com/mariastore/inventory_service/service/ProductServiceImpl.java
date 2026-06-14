@@ -27,7 +27,7 @@ public class ProductServiceImpl implements  ProductService{
         Page<Product> products;
 
         if (category != null && !category.isBlank()){
-            products =  productRepository.findByCategory(category, pageable);
+            products =  productRepository.findByCategoryContainingIgnoreCase(category, pageable);
         }else {
             products = productRepository.findAll(pageable);
         }

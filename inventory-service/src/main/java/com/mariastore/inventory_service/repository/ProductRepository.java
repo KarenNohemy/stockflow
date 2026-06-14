@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Page<Product> findByCategory (String category, Pageable pageable);
+    Page<Product> findByCategoryContainingIgnoreCase (String category, Pageable pageable);
 
 }
