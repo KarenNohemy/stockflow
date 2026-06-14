@@ -1,17 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { InventoryStore } from '../../core/store/inventory.store';
 import { CommonModule } from '@angular/common';
-
+import { MovementHistoryComponent } from '../movements/movements-history/movements-history.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MovementHistoryComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
 
   store = inject(InventoryStore);
   timeout: any;
+  selectedProductId: number | null = null;
+
 
   constructor() {
     this.store.loadProducts();
@@ -50,4 +52,10 @@ export class DashboardComponent {
       this.store.loadProducts(value);
     }, 300);
   }
+
+
+showHistory(productId: number) {
+  console.log('History clicked:', productId);
+  this.selectedProductId = productId;
+}
 }

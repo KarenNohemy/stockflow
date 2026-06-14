@@ -69,6 +69,7 @@
             <th>Min Stock</th>
             <th>Price</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -89,12 +90,49 @@
               </span>
             </td>
 
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="showHistory(p.id)">
+                View History
+              </button>
+            </td>
+
           </tr>
+
 
         </tbody>
 
       </table>
+@if (selectedProductId) {
 
+  @defer {
+
+    <app-movement-history
+      [productId]="selectedProductId">
+    </app-movement-history>
+
+  } @placeholder {
+
+    <div class="card mt-4 p-4">
+      Select a product to view history
+    </div>
+
+  } @loading {
+
+    <div class="text-center mt-4">
+      Loading history...
+    </div>
+
+  } @error {
+
+    <div class="alert alert-danger mt-4">
+      Unable to load movement history.
+    </div>
+
+  }
+
+}
     </div>
 
   </div>
