@@ -2,10 +2,11 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { InventoryStore } from '../../core/store/inventory.store';
 import { CommonModule } from '@angular/common';
 import { MovementHistoryComponent } from '../movements/movements-history/movements-history.component';
+import { AdvancedStatsComponent } from './advanced-stats/advanced-stats.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MovementHistoryComponent],
+  imports: [CommonModule, MovementHistoryComponent, AdvancedStatsComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
