@@ -35,6 +35,10 @@ export class InventoryStore {
     )
   );
 
+  refreshAll() {
+    this.loadProducts();
+    this.loadAlerts();
+  }
   // EFFECTS
   constructor() {
     effect(() => {
@@ -73,7 +77,6 @@ export class InventoryStore {
   // LOAD PRODUCTS
   loadProducts(category?: string) {
     this.loading.set(true);
-
     this.productService.getProducts(category).subscribe({
       next: (resp) => {
         this.products.set(resp.content ?? resp);

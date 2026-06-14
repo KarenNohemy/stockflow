@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { InventoryStore } from '../../core/store/inventory.store';
 import { CommonModule } from '@angular/common';
 import { MovementHistoryComponent } from '../movements/movements-history/movements-history.component';
@@ -54,8 +54,13 @@ export class DashboardComponent {
   }
 
 
-showHistory(productId: number) {
-  console.log('History clicked:', productId);
-  this.selectedProductId = productId;
-}
+  showHistory(productId: number) {
+    this.selectedProductId = productId;
+  }
+
+  onMovementCreated(productId: number) {
+    this.selectedProductId = productId;
+  }
+
+
 }

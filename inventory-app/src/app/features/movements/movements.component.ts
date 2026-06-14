@@ -39,8 +39,7 @@ export class MovementsComponent {
         this.success = 'Movimiento registrado correctamente';
 
         // refresh dashboard data
-        this.store.loadProducts();
-        this.store.loadAlerts();
+        this.store.refreshAll();
 
         this.form.reset({ type: 'IN', quantity: 1 });
         this.loading = false;
