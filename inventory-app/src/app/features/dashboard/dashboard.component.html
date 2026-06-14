@@ -1,4 +1,8 @@
 <div class="container mt-4">
+  <!-- TOAST MESSAGE -->
+  <div *ngIf="store.toastMessage()" class="toast-message">
+  {{ store.toastMessage() }}
+  </div>
 
   <!-- ERROR -->
   <div *ngIf="store.error()" class="alert alert-danger d-flex justify-content-between">
@@ -21,7 +25,7 @@
     <div class="col-md-4">
       <div class="card p-3 shadow-sm">
         <h6>Total Products</h6>
-        <h3>{{ store.totalProducts() }}</h3>
+        <h3>{{ store.inventorySummary()?.totalProducts }}</h3>
       </div>
     </div>
 
@@ -35,7 +39,7 @@
     <div class="col-md-4">
       <div class="card p-3 shadow-sm">
         <h6>Total Inventory Value</h6>
-        <h3>{{ store.totalInventoryValue() | currency }}</h3>
+        <h3> ${{ store.inventorySummary()?.totalInventoryValue | currency }}</h3>
       </div>
     </div>
 
@@ -104,35 +108,22 @@
         </tbody>
 
       </table>
-@if (selectedProductId) {
 
-  @defer {
-
-    <app-movement-history
-      [productId]="selectedProductId">
-    </app-movement-history>
-
-  } @placeholder {
-
-    <div class="card mt-4 p-4">
-      Select a product to view history
-    </div>
-
-  } @loading {
-
-    <div class="text-center mt-4">
-      Loading history...
-    </div>
-
-  } @error {
-
-    <div class="alert alert-danger mt-4">
-      Unable to load movement history.
-    </div>
-
-  }
-
-}
+      @defer (on interaction) {
+        <app-movement-history [productId]="selectedProductId"></app-movement-history>
+      } @placeholder {
+        <div class="card mt-4 p-4">
+          Select a product to view history
+        </div>
+      } @loading {
+        <div class="text-center mt-4">
+          <div class="spinner-border"></div>
+        </div>
+      } @error {
+        <div class="alert alert-danger mt-4">
+          Unable to load movement history.
+        </div>
+      }
     </div>
 
   </div>

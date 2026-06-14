@@ -1,5 +1,15 @@
 <div class="container mt-4">
 
+  <div
+  *ngIf="store.toastMessage()"
+  class="toast show position-fixed top-0 end-0 m-4 bg-warning text-dark"
+  style="z-index: 9999; min-width: 300px;"
+  >
+    <div class="toast-body">
+      ⚠️ {{ store.toastMessage() }}
+    </div>
+  </div>
+
   <!-- HEADER -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Stock Alerts</h3>

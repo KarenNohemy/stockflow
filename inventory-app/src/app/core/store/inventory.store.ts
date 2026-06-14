@@ -15,18 +15,27 @@ export class InventoryStore {
 
   // STATE
   products = signal<Product[]>([]);
+  totalProducts = signal(0);
+  totalPages = signal(0);
+  currentPage = signal(0);
   alerts = signal<StockAlert[]>([]);
   selectedProduct = signal<Product | null>(null);
 
   loading = signal(false);
   error = signal<string | null>(null);
+  toastMessage = signal<string | null>(null);
 
   filterCategory = signal(
     localStorage.getItem('filterCategory') ?? ''
   );
 
+  inventorySummary = signal<{
+  totalInventoryValue: number;
+  totalProducts: number;
+  } | null>(null);
+
   // COMPUTED
-  totalProducts = computed(() => this.products().length);
+  totalProductsComputed = computed(() => this.totalProducts() );
 
   criticalAlerts = computed(() =>
     this.alerts().filter(a => a.severity === 'CRITICAL').length
@@ -42,6 +51,8 @@ export class InventoryStore {
   refreshAll() {
     this.loadProducts();
     this.loadAlerts();
+    this.loadInventorySummary();
+
   }
   // EFFECTS
   constructor() {
@@ -61,6 +72,25 @@ export class InventoryStore {
         'filterCategory',
         this.filterCategory()
       );
+    });
+
+    let firstLoad = true;
+
+    effect(() => {
+      const alerts = this.alerts();
+
+      if (firstLoad) {
+        firstLoad = false;
+        return;
+      }
+
+      if (!alerts) return;
+
+      this.toastMessage.set(`⚠ ${alerts.length} active alerts`);
+
+      setTimeout(() => {
+        this.toastMessage.set(null);
+      }, 3000);
     });
   }
 
@@ -90,11 +120,15 @@ export class InventoryStore {
   }
 
   // LOAD PRODUCTS
-  loadProducts(category?: string) {
+  loadProducts(category?: string, page = 0) {
     this.loading.set(true);
-    this.productService.getProducts(category).subscribe({
+  const finalCategory = category?.trim() || this.filterCategory() || undefined;
+    this.productService.getProducts(finalCategory).subscribe({
       next: (resp) => {
-        this.products.set(resp.content ?? resp);
+        this.products.set(resp.content);
+        this.totalProducts.set(resp.totalElements);
+        this.totalPages.set(resp.totalPages);
+        this.currentPage.set(resp.number);
         this.loading.set(false);
       },
       error: (err) => {
@@ -105,10 +139,29 @@ export class InventoryStore {
   }
 
   // LOAD ALERTS
-  loadAlerts() {
-    this.alertService.getAlerts().subscribe({
+    loadAlerts() {
+      this.alertService.getAlerts().subscribe({
+        next: (data) => {
+          const previous = this.alerts().length;
+
+          this.alerts.set(data);
+
+          if (previous !== data.length) {
+            this.toastMessage.set(`⚠ Alerts updated: ${data.length}`);
+
+            setTimeout(() => {
+              this.toastMessage.set(null);
+            }, 4000);
+          }
+        }
+      });
+    }
+
+  //LOAD SUMARY
+  loadInventorySummary() {
+    this.productService.getInventorySummary().subscribe({
       next: (data) => {
-        this.alerts.set(data);
+        this.inventorySummary.set(data);
       },
       error: (err) => {
         this.error.set(err.message);

@@ -19,8 +19,9 @@ export class DashboardComponent {
     this.store.loadProducts(
       this.store.filterCategory()
     );
-
+    this.store.loadInventorySummary();
     this.store.loadAlerts();
+    this.store.refreshAll();
   }
 
   getStockLabel(product: any): string {
@@ -52,10 +53,12 @@ export class DashboardComponent {
     clearTimeout(this.timeout);
 
     this.timeout = setTimeout(() => {
-     this.store.setFilterCategory(value);
-     this.store.loadProducts(value);
+    const cleanValue = value?.trim();
+    this.store.setFilterCategory(cleanValue);
+    this.store.loadProducts(cleanValue || undefined);
     }, 300);
   }
+
 
 
   showHistory(productId: number) {
