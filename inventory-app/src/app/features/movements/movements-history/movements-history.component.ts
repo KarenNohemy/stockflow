@@ -41,7 +41,7 @@ export class MovementHistoryComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.message);
+        this.error.set('Unable to load movement history');
         this.loading.set(false);
       }
     });

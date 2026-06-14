@@ -30,10 +30,6 @@ export class MovementsComponent {
   submit() {
     if (this.form.invalid) return;
 
-    this.loading = true;
-    this.error = null;
-    this.success = null;
-
     this.movementService.createMovement(this.form.value).subscribe({
       next: () => {
         this.success = 'Movimiento registrado correctamente';
