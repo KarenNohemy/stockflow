@@ -1,5 +1,6 @@
 package com.mariastore.inventory_service.service;
 
+import com.mariastore.inventory_service.dto.response.InventorySummaryResponse;
 import com.mariastore.inventory_service.dto.response.ProductResponse;
 import com.mariastore.inventory_service.dto.response.StockAlertResponse;
 import com.mariastore.inventory_service.entity.Product;
@@ -13,4 +14,6 @@ public interface ProductService {
     Page<ProductResponse> getProducts (String category, Pageable pageable);
 
     ProductResponse getProductById (Long id) throws ProductNotFoundException;
+
+    InventorySummaryResponse getInventorySummary();
 }

@@ -1,5 +1,6 @@
 package com.mariastore.inventory_service.controller;
 
+import com.mariastore.inventory_service.dto.response.InventorySummaryResponse;
 import com.mariastore.inventory_service.dto.response.ProductResponse;
 import com.mariastore.inventory_service.exception.ProductNotFoundException;
 import com.mariastore.inventory_service.service.ProductService;
@@ -34,5 +35,11 @@ public class ProductController
     @GetMapping("/{id}")
     public ProductResponse getProductById (@PathVariable(required = true) Long id ) throws ProductNotFoundException {
         return  productService.getProductById(id);
+    }
+
+    @Operation(summary = "Get total inventory value products")
+    @GetMapping("/summary")
+    public InventorySummaryResponse getSummary() {
+        return productService.getInventorySummary();
     }
 }

@@ -1,5 +1,6 @@
 package com.mariastore.inventory_service.service;
 
+import com.mariastore.inventory_service.dto.response.InventorySummaryResponse;
 import com.mariastore.inventory_service.dto.response.ProductResponse;
 import com.mariastore.inventory_service.dto.response.StockAlertResponse;
 import com.mariastore.inventory_service.entity.Product;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +45,21 @@ public class ProductServiceImpl implements  ProductService{
                 new ProductNotFoundException ("Id de producto " + id +  " no existe"));
 
         return ProductMapper.toResponse(product);
+    }
+
+    @Override
+    public InventorySummaryResponse getInventorySummary() {
+
+        List<Product> products = productRepository.findAll();
+
+        BigDecimal totalValue = products.stream()
+                .map(p -> p.getUnitPrice().multiply(BigDecimal.valueOf(p.getCurrentStock())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new InventorySummaryResponse(
+                totalValue,
+                (long) products.size()
+        );
     }
 
 }
