@@ -109,20 +109,34 @@
 
       </table>
 
-      @defer (on interaction) {
-        <app-movement-history [productId]="selectedProductId"></app-movement-history>
-      } @placeholder {
-        <div class="card mt-4 p-4">
-          Select a product to view history
-        </div>
-      } @loading {
-        <div class="text-center mt-4">
-          <div class="spinner-border"></div>
-        </div>
-      } @error {
-        <div class="alert alert-danger mt-4">
-          Unable to load movement history.
-        </div>
+          @if (selectedProductId !== null) {
+
+        @defer (on interaction) {
+
+          <app-movement-history
+            [productId]="selectedProductId">
+          </app-movement-history>
+
+        } @placeholder {
+
+          <div class="card mt-4 p-4">
+            Select a product to view history
+          </div>
+
+        } @loading {
+
+          <div class="text-center mt-4">
+            <div class="spinner-border"></div>
+          </div>
+
+        } @error {
+
+          <div class="alert alert-danger mt-4">
+            Unable to load movement history.
+          </div>
+
+        }
+
       }
     </div>
 
