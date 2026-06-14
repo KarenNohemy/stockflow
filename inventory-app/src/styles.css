@@ -19,3 +19,9 @@
 .toast-message.info {
   background: #17a2b8;
 }
+
+.page-link {
+  cursor: pointer;
+  min-width: 90px;
+  text-align: center;
+}

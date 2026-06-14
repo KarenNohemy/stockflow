@@ -1,8 +1,9 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { InventoryStore } from '../../core/store/inventory.store';
 import { CommonModule } from '@angular/common';
 import { MovementHistoryComponent } from '../movements/movements-history/movements-history.component';
 import { AdvancedStatsComponent } from './advanced-stats/advanced-stats.component';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -12,28 +13,38 @@ import { AdvancedStatsComponent } from './advanced-stats/advanced-stats.componen
 export class DashboardComponent {
 
   store = inject(InventoryStore);
-  timeout: any;
-  selectedProductId: number | null = null;
 
+  // ✅ SIGNAL correcto
+  selectedProductId = signal<number | null>(null);
+
+  private timeout: any;
 
   constructor() {
-    this.store.loadProducts(
-      this.store.filterCategory()
-    );
-    this.store.loadInventorySummary();
-    this.store.loadAlerts();
     this.store.refreshAll();
   }
 
+  showHistory(productId: number) {
+    this.selectedProductId.set(productId);
+  }
+
+  onMovementCreated(productId: number) {
+    this.selectedProductId.set(productId);
+  }
+
+  onFilterChange(value: string) {
+    clearTimeout(this.timeout);
+
+    this.timeout = setTimeout(() => {
+      const cleanValue = value?.trim();
+
+      this.store.setFilterCategory(cleanValue);
+      this.store.loadProducts(cleanValue || undefined);
+    }, 300);
+  }
+
   getStockLabel(product: any): string {
-    if (product.currentStock <= product.minStock * 0.5) {
-      return 'CRITICAL';
-    }
-
-    if (product.currentStock <= product.minStock) {
-      return 'LOW';
-    }
-
+    if (product.currentStock <= product.minStock * 0.5) return 'CRITICAL';
+    if (product.currentStock <= product.minStock) return 'LOW';
     return 'OK';
   }
 
@@ -50,25 +61,7 @@ export class DashboardComponent {
     }
   }
 
-  onFilterChange(value: string) {
-    clearTimeout(this.timeout);
-
-    this.timeout = setTimeout(() => {
-    const cleanValue = value?.trim();
-    this.store.setFilterCategory(cleanValue);
-    this.store.loadProducts(cleanValue || undefined);
-    }, 300);
+  changePage(page: number) {
+  this.store.loadProducts(this.store.filterCategory(), page);
   }
-
-
-
-  showHistory(productId: number) {
-    this.selectedProductId = productId;
-  }
-
-  onMovementCreated(productId: number) {
-    this.selectedProductId = productId;
-  }
-
-
 }

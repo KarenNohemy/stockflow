@@ -33,7 +33,7 @@
 
   </div>
 
-  <!-- PRODUCT SECTION -->
+  <!-- PRODUCTS -->
   <div class="mt-5">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -47,9 +47,7 @@
       />
     </div>
 
-    <!-- TABLE (ÚNICA - CORREGIDO) -->
     <div class="table-responsive">
-
       <table class="table table-hover align-middle">
 
         <thead class="table-dark">
@@ -66,7 +64,6 @@
         </thead>
 
         <tbody>
-
           <tr *ngFor="let p of store.products()">
 
             <td>{{ p.sku }}</td>
@@ -91,51 +88,68 @@
             </td>
 
           </tr>
-
         </tbody>
 
-      </table>
+      <div class="d-flex justify-content-center mt-4">
 
+        <nav>
+          <ul class="pagination pagination-sm align-items-center m-0">
+
+            <li class="page-item"
+                [class.disabled]="store.currentPage() === 0">
+
+              <button class="page-link"
+                      (click)="changePage(store.currentPage() - 1)">
+                Previous
+              </button>
+            </li>
+
+            <li class="page-item disabled">
+              <span class="page-link bg-light text-dark fw-bold">
+                {{ store.currentPage() + 1 }} / {{ store.totalPages() }}
+              </span>
+            </li>
+
+            <li class="page-item"
+                [class.disabled]="store.currentPage() + 1 >= store.totalPages()">
+
+              <button class="page-link"
+                      (click)="changePage(store.currentPage() + 1)">
+                Next
+              </button>
+            </li>
+
+          </ul>
+        </nav>
+
+      </div>
+
+      </table>
     </div>
 
-    <!-- MOVEMENT HISTORY (DEFER INTERACTION) -->
-    @if (selectedProductId !== null) {
+    <!-- MOVEMENT HISTORY -->
+    @defer (when selectedProductId() !== null) {
 
-      @defer (on interaction) {
+      <app-movement-history
+        [productId]="selectedProductId()!">
+      </app-movement-history>
 
-        <app-movement-history
-          [productId]="selectedProductId">
-        </app-movement-history>
-
-      } @placeholder {
-        <div class="card mt-4 p-4">
-          Select a product to view history
-        </div>
-      } @loading {
-        <div class="text-center mt-4">
-          <div class="spinner-border"></div>
-        </div>
-      } @error {
-        <div class="alert alert-danger mt-4">
-          Unable to load movement history.
-        </div>
-      }
-
+    } @placeholder {
+      <div class="card mt-4 p-4">
+        Select a product to view history
+      </div>
     }
 
   </div>
 
-  <!-- ADVANCED STATS (DEFER ON VIEWPORT) -->
+  <!-- ADVANCED STATS -->
   <div class="mt-5">
 
     <h4>Advanced Statistics</h4>
 
     @defer (on viewport) {
-
-      <app-advanced-stats></app-advanced-stats>
-
+      <app-advanced-stats />
     } @placeholder {
-
       <div class="card p-4 mt-3">
         <div class="placeholder-glow">
           <span class="placeholder col-12"></span>
@@ -143,19 +157,14 @@
           <span class="placeholder col-10"></span>
         </div>
       </div>
-
     } @loading {
-
       <div class="text-center mt-3">
         <div class="spinner-border"></div>
       </div>
-
     } @error {
-
       <div class="alert alert-danger mt-3">
         Error loading advanced statistics
       </div>
-
     }
 
   </div>

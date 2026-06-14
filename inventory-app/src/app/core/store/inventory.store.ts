@@ -78,19 +78,28 @@ export class InventoryStore {
   this.filterCategory.set(category);
   }
 
-  loadProducts(category?: string) {
+    loadProducts(category?: string, page = 0) {
     this.loading.set(true);
 
-    this.productService.getProducts(category).subscribe({
+    const size = 10;
+
+    this.productService.getProducts(category, page, size).subscribe({
       next: (resp) => {
         this.products.set(resp.content);
+
+        // 🔥 IMPORTANTE: esto faltaba en tu versión final
+        this.totalPages.set(resp.totalPages);
+        this.totalProducts.set(resp.totalElements);
+        this.currentPage.set(resp.number);
+
         this.loading.set(false);
       },
       error: (err) => {
         this.loading.set(false);
+
         this.toastMessage.set({
           type: 'error',
-          text: err?.message ?? 'Error cargando productos'
+          text: err?.message ?? 'Error loading products'
         });
       }
     });
