@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +30,8 @@ public class GlobalExceptionHandler {
             (InsufficientStockException ex, HttpServletRequest request){
 
         ErrorResponse error = new ErrorResponse (
-                LocalDateTime.now(), 422, "Insufficient Stock", ex.getMessage(), request.getRequestURI()
+                LocalDateTime.now(), HttpStatus.UNPROCESSABLE_ENTITY.value()
+                , "Insufficient Stock", ex.getMessage(), request.getRequestURI()
         );
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
@@ -77,13 +79,25 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                429,
+                HttpStatus.TOO_MANY_REQUESTS.value(),
                 "Too Many Requests",
                 "Rate limit exceeded",
                 request.getRequestURI()
         );
 
         return ResponseEntity.status(429).body(error);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundRoute(
+            NoHandlerFoundException ex,
+            HttpServletRequest request
+    ) {
+        return buildResponse(
+                HttpStatus.NOT_FOUND,
+                "Endpoint no encontrado",
+                request.getRequestURI()
+        );
     }
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,

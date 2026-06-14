@@ -1,18 +1,5 @@
 <div class="container mt-4">
 
-  <!-- TOAST MESSAGE -->
-  <div *ngIf="store.toastMessage()" class="toast-message">
-    {{ store.toastMessage() }}
-  </div>
-
-  <!-- ERROR -->
-  <div *ngIf="store.error()" class="alert alert-danger d-flex justify-content-between">
-    <span>{{ store.error() }}</span>
-    <button class="btn btn-sm btn-dark" (click)="store.setError(null)">
-      X
-    </button>
-  </div>
-
   <!-- LOADING -->
   <div *ngIf="store.loading()" class="text-center my-3">
     <div class="spinner-border text-primary"></div>

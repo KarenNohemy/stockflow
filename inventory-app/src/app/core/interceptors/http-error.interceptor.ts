@@ -10,23 +10,32 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error) => {
 
-      let message = 'Unexpected error occurred';
 
-      // 👇 si backend manda estructura tipo ErrorResponse
-      if (error?.error?.message) {
-        message = error.error.message;
-      } else if (error?.message) {
-        message = error.message;
+      let message = 'Error inesperado, intenta nuevamente';
+
+      // 1. NETWORK ERROR (PRIMERO SIEMPRE)
+      if (error.status === 0) {
+        message = 'No hay conexión con el servidor';
       }
 
-      // 🔥 UX GLOBAL
-      store.setError(message);
+      // 2. HTTP ERRORS
+      else if (error.status === 404) {
+        message = error?.error?.message || 'Recurso no encontrado';
+      }
 
-      store.toastMessage.set(message);
+      else if (error.status === 500) {
+        message = error?.error?.message || 'Error interno del servidor';
+      }
 
-      setTimeout(() => {
-        store.toastMessage.set(null);
-      }, 3000);
+      // 3. FALLBACK BACKEND MESSAGE (AL FINAL)
+      else if (error?.error?.message) {
+        message = error.error.message;
+      }
+
+      store.toastMessage.set({
+        type: 'error',
+        text: message
+      });
 
       return throwError(() => error);
     })

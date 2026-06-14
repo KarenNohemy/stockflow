@@ -2,16 +2,6 @@
 
   <h3>Register Movement</h3>
 
-  <!-- SUCCESS -->
-  <div *ngIf="success" class="alert alert-success">
-    {{ success }}
-  </div>
-
-  <!-- ERROR -->
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
-  </div>
-
   <form [formGroup]="form" (ngSubmit)="submit()" class="card p-3">
 
     <!-- PRODUCT ID -->
@@ -41,14 +31,14 @@
       <input type="text" class="form-control" formControlName="reason">
     </div>
 
-   <!-- BUTTON -->
+    <!-- BUTTON -->
     <button
       class="btn btn-primary"
       type="submit"
-      [disabled]="form.invalid || loading">
+      [disabled]="form.invalid || loading()">
 
-      <span *ngIf="loading">Processing...</span>
-      <span *ngIf="!loading">Submit Movement</span>
+      <span *ngIf="loading()">Processing...</span>
+      <span *ngIf="!loading()">Submit Movement</span>
 
     </button>
 

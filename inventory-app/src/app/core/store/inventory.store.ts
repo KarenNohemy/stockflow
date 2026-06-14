@@ -1,13 +1,10 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Product } from '../../shared/models/product.model';
 import { StockAlert } from '../../shared/models/stock-alert.model';
-
 import { ProductService } from '../services/product.service';
 import { AlertService } from '../services/alert.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class InventoryStore {
 
   private productService = inject(ProductService);
@@ -23,19 +20,22 @@ export class InventoryStore {
 
   loading = signal(false);
   error = signal<string | null>(null);
-  toastMessage = signal<string | null>(null);
 
-  filterCategory = signal(
-    localStorage.getItem('filterCategory') ?? ''
-  );
+  // ✅ TOAST FINAL (CORRECTO)
+  toastMessage = signal<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+  } | null>(null);
+
+  filterCategory = signal(localStorage.getItem('filterCategory') ?? '');
 
   inventorySummary = signal<{
-  totalInventoryValue: number;
-  totalProducts: number;
+    totalInventoryValue: number;
+    totalProducts: number;
   } | null>(null);
 
   // COMPUTED
-  totalProductsComputed = computed(() => this.totalProducts() );
+  totalProductsComputed = computed(() => this.totalProducts());
 
   criticalAlerts = computed(() =>
     this.alerts().filter(a => a.severity === 'CRITICAL').length
@@ -48,124 +48,81 @@ export class InventoryStore {
     )
   );
 
-  refreshAll() {
-    this.loadProducts();
-    this.loadAlerts();
-    this.loadInventorySummary();
+  private toastTimeout: any;
 
-  }
-  // EFFECTS
   constructor() {
+
     effect(() => {
-      const selected = this.selectedProduct();
-      if (selected) {
-        localStorage.setItem('selectedProduct', JSON.stringify(selected));
-      }
+      localStorage.setItem('filterCategory', this.filterCategory());
     });
 
     effect(() => {
-      localStorage.setItem('alerts', JSON.stringify(this.alerts()));
-    });
+      const toast = this.toastMessage();
+      if (!toast) return;
 
-    effect(() => {
-      localStorage.setItem(
-        'filterCategory',
-        this.filterCategory()
-      );
-    });
+      clearTimeout(this.toastTimeout);
 
-    let firstLoad = true;
-
-    effect(() => {
-      const alerts = this.alerts();
-
-      if (firstLoad) {
-        firstLoad = false;
-        return;
-      }
-
-      if (!alerts) return;
-
-      this.toastMessage.set(`⚠ ${alerts.length} active alerts`);
-
-      setTimeout(() => {
+      this.toastTimeout = setTimeout(() => {
         this.toastMessage.set(null);
       }, 3000);
     });
   }
 
-  // ACTIONS
-  setProducts(products: Product[]) {
-    this.products.set(products);
-  }
-
-  setAlerts(alerts: StockAlert[]) {
-    this.alerts.set(alerts);
-  }
-
-  selectProduct(product: Product) {
-    this.selectedProduct.set(product);
-  }
-
-  setLoading(value: boolean) {
-    this.loading.set(value);
-  }
-
-  setError(message: string | null) {
-    this.error.set(message);
+  refreshAll() {
+    this.loadProducts();
+    this.loadAlerts();
+    this.loadInventorySummary();
   }
 
   setFilterCategory(category: string) {
   this.filterCategory.set(category);
   }
 
-  // LOAD PRODUCTS
-  loadProducts(category?: string, page = 0) {
+  loadProducts(category?: string) {
     this.loading.set(true);
-  const finalCategory = category?.trim() || this.filterCategory() || undefined;
-    this.productService.getProducts(finalCategory).subscribe({
+
+    this.productService.getProducts(category).subscribe({
       next: (resp) => {
         this.products.set(resp.content);
-        this.totalProducts.set(resp.totalElements);
-        this.totalPages.set(resp.totalPages);
-        this.currentPage.set(resp.number);
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.message);
         this.loading.set(false);
+        this.toastMessage.set({
+          type: 'error',
+          text: err?.message ?? 'Error cargando productos'
+        });
       }
     });
   }
 
-  // LOAD ALERTS
-    loadAlerts() {
-      this.alertService.getAlerts().subscribe({
-        next: (data) => {
-          const previous = this.alerts().length;
+loadAlerts() {
+  this.alertService.getAlerts().subscribe({
+    next: (data) => {
 
-          this.alerts.set(data);
+      const old = JSON.stringify(this.alerts());
+      const next = JSON.stringify(data);
 
-          if (previous !== data.length) {
-            this.toastMessage.set(`⚠ Alerts updated: ${data.length}`);
+      this.alerts.set(data);
 
-            setTimeout(() => {
-              this.toastMessage.set(null);
-            }, 4000);
-          }
-        }
-      });
+      if (old !== next) {
+        this.toastMessage.set({
+          type: 'info',
+          text: `⚠ Alerts updated (${data.length})`
+        });
+      }
     }
+  });
+}
 
-  //LOAD SUMARY
   loadInventorySummary() {
     this.productService.getInventorySummary().subscribe({
-      next: (data) => {
-        this.inventorySummary.set(data);
-      },
-      error: (err) => {
-        this.error.set(err.message);
-      }
+      next: (data) => this.inventorySummary.set(data),
+      error: (err) =>
+        this.toastMessage.set({
+          type: 'error',
+          text: err?.message ?? 'Error summary'
+        })
     });
   }
 }
