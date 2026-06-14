@@ -16,7 +16,10 @@ export class DashboardComponent {
 
 
   constructor() {
-    this.store.loadProducts();
+    this.store.loadProducts(
+      this.store.filterCategory()
+    );
+
     this.store.loadAlerts();
   }
 
@@ -49,7 +52,8 @@ export class DashboardComponent {
     clearTimeout(this.timeout);
 
     this.timeout = setTimeout(() => {
-      this.store.loadProducts(value);
+     this.store.setFilterCategory(value);
+     this.store.loadProducts(value);
     }, 300);
   }
 

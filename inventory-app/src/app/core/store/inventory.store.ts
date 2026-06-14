@@ -21,6 +21,10 @@ export class InventoryStore {
   loading = signal(false);
   error = signal<string | null>(null);
 
+  filterCategory = signal(
+    localStorage.getItem('filterCategory') ?? ''
+  );
+
   // COMPUTED
   totalProducts = computed(() => this.products().length);
 
@@ -51,6 +55,13 @@ export class InventoryStore {
     effect(() => {
       localStorage.setItem('alerts', JSON.stringify(this.alerts()));
     });
+
+    effect(() => {
+      localStorage.setItem(
+        'filterCategory',
+        this.filterCategory()
+      );
+    });
   }
 
   // ACTIONS
@@ -72,6 +83,10 @@ export class InventoryStore {
 
   setError(message: string | null) {
     this.error.set(message);
+  }
+
+  setFilterCategory(category: string) {
+  this.filterCategory.set(category);
   }
 
   // LOAD PRODUCTS
