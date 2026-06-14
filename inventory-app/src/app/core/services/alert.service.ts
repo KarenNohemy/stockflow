@@ -9,9 +9,7 @@ export class AlertService {
 
   private api = inject(ApiService);
 
-  private baseUrl = `${environment.apiUrl}/alerts`;
-
   getAlerts(): Observable<StockAlert[]> {
-    return this.api.get<StockAlert[]>(this.baseUrl);
+    return this.api.get<StockAlert[]>(`/alerts`);
   }
 }
