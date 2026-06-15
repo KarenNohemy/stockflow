@@ -22,7 +22,7 @@ public class OpenApiConfig {
                         .description("API for StockFlow inventory management")
                         .contact(new Contact()
                                 .name("StockFlow Team")
-                                .email("support@stockflow.com"))
+                                .email("nohemy.lopez@bancocuscatlan.com.hn"))
                         .license(new License()
                                 .name("Internal Use Only")))
                 .servers(List.of(
