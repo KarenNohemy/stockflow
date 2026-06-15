@@ -113,18 +113,20 @@ export class InventoryStore {
   // API CALLS
   // =========================
 
-  loadProducts(category?: string, page = 0) {
+  loadProducts(category?: string, page: number = 0) {
     this.loading.set(true);
 
     const size = 10;
 
     this.productService.getProducts(category, page, size).subscribe({
       next: (resp) => {
+
         this.products.set(resp.content);
 
-        this.totalPages.set(resp.totalPages);
+        this.totalPages.set(Math.ceil(resp.totalElements / size));
+
         this.totalProducts.set(resp.totalElements);
-        this.currentPage.set(resp.number);
+        this.currentPage.set(page);
 
         this.loading.set(false);
       },
