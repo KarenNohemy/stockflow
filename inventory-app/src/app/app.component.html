@@ -1,0 +1,15 @@
+<app-navbar></app-navbar>
+
+<!-- TOAST GLOBAL -->
+<div
+  *ngIf="store.toastMessage() as toast"
+  class="toast-message"
+  [ngClass]="toast.type">
+
+  {{ toast.text }}
+
+</div>
+
+<div class="container mt-3">
+  <router-outlet></router-outlet>
+</div>
