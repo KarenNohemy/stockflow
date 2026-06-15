@@ -2,8 +2,10 @@ package com.stockflow.inventory_service.dto.response;
 
 import java.math.BigDecimal;
 
-public record InventorySummaryResponse  (
+public record InventorySummaryResponse(
+        int totalProducts,
         BigDecimal totalInventoryValue,
-        Long totalProducts
+        int totalUnits,
+        int lowStockProducts
 ) {
 }

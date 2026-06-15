@@ -10,46 +10,73 @@ export class InventoryStore {
   private productService = inject(ProductService);
   private alertService = inject(AlertService);
 
-  // STATE
+  // =========================
+  // STATE (BACKEND DATA)
+  // =========================
   products = signal<Product[]>([]);
   totalProducts = signal(0);
   totalPages = signal(0);
   currentPage = signal(0);
+
   alerts = signal<StockAlert[]>([]);
   selectedProduct = signal<Product | null>(null);
+
+  inventorySummary = signal<{
+    totalInventoryValue: number;
+    totalProducts: number;
+    totalUnits: number;
+    lowStockProducts: number;
+  } | null>(null);
 
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // ✅ TOAST FINAL (CORRECTO)
+  // =========================
+  // UI STATE
+  // =========================
+  filterCategory = signal(localStorage.getItem('filterCategory') ?? '');
+
   toastMessage = signal<{
     type: 'success' | 'error' | 'info';
     text: string;
   } | null>(null);
 
-  filterCategory = signal(localStorage.getItem('filterCategory') ?? '');
+  private toastTimeout: any;
 
-  inventorySummary = signal<{
-    totalInventoryValue: number;
-    totalProducts: number;
-  } | null>(null);
-
-  // COMPUTED
-  totalProductsComputed = computed(() => this.totalProducts());
+  // =========================
+  // COMPUTED (DERIVED STATE)
+  // =========================
 
   criticalAlerts = computed(() =>
     this.alerts().filter(a => a.severity === 'CRITICAL').length
   );
 
-  totalInventoryValue = computed(() =>
-    this.products().reduce(
-      (acc, p) => acc + (p.currentStock * Number(p.unitPrice)),
-      0
-    )
+  lowStockCount = computed(() =>
+    this.products().filter(p => p.currentStock <= p.minStock).length
   );
 
-  private toastTimeout: any;
+  totalUnits = computed(() =>
+    this.products().reduce((acc, p) => acc + p.currentStock, 0)
+  );
 
+  totalInventoryValueComputed = computed(() =>
+    this.inventorySummary()?.totalInventoryValue ?? 0
+  );
+
+  totalProductsComputed = computed(() =>
+    this.inventorySummary()?.totalProducts ?? this.totalProducts()
+  );
+
+  averageProductValue = computed(() => {
+    const summary = this.inventorySummary();
+    if (!summary || !summary.totalProducts) return 0;
+
+    return summary.totalInventoryValue / summary.totalProducts;
+  });
+
+  // =========================
+  // EFFECTS
+  // =========================
   constructor() {
 
     effect(() => {
@@ -68,6 +95,10 @@ export class InventoryStore {
     });
   }
 
+  // =========================
+  // ACTIONS
+  // =========================
+
   refreshAll() {
     this.loadProducts();
     this.loadAlerts();
@@ -75,10 +106,14 @@ export class InventoryStore {
   }
 
   setFilterCategory(category: string) {
-  this.filterCategory.set(category);
+    this.filterCategory.set(category);
   }
 
-    loadProducts(category?: string, page = 0) {
+  // =========================
+  // API CALLS
+  // =========================
+
+  loadProducts(category?: string, page = 0) {
     this.loading.set(true);
 
     const size = 10;
@@ -87,7 +122,6 @@ export class InventoryStore {
       next: (resp) => {
         this.products.set(resp.content);
 
-        // 🔥 IMPORTANTE: esto faltaba en tu versión final
         this.totalPages.set(resp.totalPages);
         this.totalProducts.set(resp.totalElements);
         this.currentPage.set(resp.number);
@@ -105,32 +139,36 @@ export class InventoryStore {
     });
   }
 
-loadAlerts() {
-  this.alertService.getAlerts().subscribe({
-    next: (data) => {
+  loadAlerts() {
+    this.alertService.getAlerts().subscribe({
+      next: (data) => {
 
-      const old = JSON.stringify(this.alerts());
-      const next = JSON.stringify(data);
+        const old = JSON.stringify(this.alerts());
+        this.alerts.set(data);
 
-      this.alerts.set(data);
-
-      if (old !== next) {
+        if (old !== JSON.stringify(data)) {
+          this.toastMessage.set({
+            type: 'info',
+            text: `⚠ Alerts updated (${data.length})`
+          });
+        }
+      },
+      error: (err) => {
         this.toastMessage.set({
-          type: 'info',
-          text: `⚠ Alerts updated (${data.length})`
+          type: 'error',
+          text: err?.message ?? 'Error loading alerts'
         });
       }
-    }
-  });
-}
+    });
+  }
 
-  loadInventorySummary() {
+    loadInventorySummary() {
     this.productService.getInventorySummary().subscribe({
       next: (data) => this.inventorySummary.set(data),
       error: (err) =>
         this.toastMessage.set({
           type: 'error',
-          text: err?.message ?? 'Error summary'
+          text: err?.message ?? 'Error loading summary'
         })
     });
   }

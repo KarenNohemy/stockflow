@@ -49,13 +49,26 @@ public class ProductServiceImpl implements  ProductService{
 
         List<Product> products = productRepository.findAll();
 
-        BigDecimal totalValue = products.stream()
-                .map(p -> p.getUnitPrice().multiply(BigDecimal.valueOf(p.getCurrentStock())))
+        BigDecimal totalInventoryValue = products.stream()
+                .map(p -> p.getUnitPrice()
+                        .multiply(BigDecimal.valueOf(p.getCurrentStock())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        int totalProducts = products.size();
+
+        int totalUnits = products.stream()
+                .mapToInt(Product::getCurrentStock)
+                .sum();
+
+        int lowStockProducts = (int) products.stream()
+                .filter(p -> p.getCurrentStock() <= p.getMinStock())
+                .count();
+
         return new InventorySummaryResponse(
-                totalValue,
-                (long) products.size()
+                totalProducts,
+                totalInventoryValue,
+                totalUnits,
+                lowStockProducts
         );
     }
 

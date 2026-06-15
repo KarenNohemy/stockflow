@@ -12,27 +12,19 @@ export class AdvancedStatsComponent {
 
   store = inject(InventoryStore);
 
+
   avgProductValue = computed(() => {
-    const products = this.store.products();
+  const s = this.store.inventorySummary();
+  if (!s || !s.totalProducts) return 0;
 
-    if (!products.length) return 0;
-
-    const total = products.reduce(
-      (acc, p) => acc + (p.currentStock * Number(p.unitPrice)),
-      0
-    );
-
-    return total / products.length;
+  return s.totalInventoryValue / s.totalProducts;
   });
 
   lowStockCount = computed(() => {
-    return this.store.products()
-      .filter(p => p.currentStock <= p.minStock)
-      .length;
+    return this.store.inventorySummary()?.lowStockProducts ?? 0;
   });
 
   totalUnits = computed(() => {
-    return this.store.products()
-      .reduce((acc, p) => acc + p.currentStock, 0);
+    return this.store.inventorySummary()?.totalUnits ?? 0;
   });
 }
