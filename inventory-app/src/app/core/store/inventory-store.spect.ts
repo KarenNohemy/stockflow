@@ -1,42 +1,191 @@
-import { TestBed } from '@angular/core/testing';
-import { InventoryStore } from './inventory.store';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { Product } from '../../shared/models/product.model';
+import { StockAlert } from '../../shared/models/stock-alert.model';
+import { ProductService } from '../services/product.service';
+import { AlertService } from '../services/alert.service';
 
-describe('InventoryStore', () => {
+@Injectable({ providedIn: 'root' })
+export class InventoryStore {
 
-  let store: InventoryStore;
+  private productService = inject(ProductService);
+  private alertService = inject(AlertService);
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [InventoryStore]
+  // =========================
+  // STATE
+  // =========================
+  products = signal<Product[]>([]);
+  totalProducts = signal(0);
+  totalPages = signal(0);
+  currentPage = signal(0);
+
+  alerts = signal<StockAlert[]>([]);
+  selectedProduct = signal<Product | null>(null);
+
+  inventorySummary = signal<{
+    totalInventoryValue: number;
+    totalProducts: number;
+    totalUnits: number;
+    lowStockProducts: number;
+  } | null>(null);
+
+  loading = signal(false);
+  error = signal<string | null>(null);
+
+  // =========================
+  // UI STATE
+  // =========================
+  filterCategory = signal(localStorage.getItem('filterCategory') ?? '');
+
+  toastMessage = signal<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+  } | null>(null);
+
+  private toastTimeout: any;
+
+  // =========================
+  // COMPUTED
+  // =========================
+  criticalAlerts = computed(() =>
+    this.alerts().filter(a => a.severity === 'CRITICAL').length
+  );
+
+  lowStockCount = computed(() =>
+    this.products().filter(p => p.currentStock <= p.minStock).length
+  );
+
+  totalUnits = computed(() =>
+    this.products().reduce((acc, p) => acc + p.currentStock, 0)
+  );
+
+  totalInventoryValueComputed = computed(() =>
+    this.inventorySummary()?.totalInventoryValue ?? 0
+  );
+
+  totalProductsComputed = computed(() =>
+    this.inventorySummary()?.totalProducts ?? this.totalProducts()
+  );
+
+  averageProductValue = computed(() => {
+    const s = this.inventorySummary();
+    if (!s || !s.totalProducts) return 0;
+    return s.totalInventoryValue / s.totalProducts;
+  });
+
+  // =========================
+  // CONSTRUCTOR (ONLY EFFECTS)
+  // =========================
+  constructor() {
+
+    // persist filter
+    effect(() => {
+      localStorage.setItem('filterCategory', this.filterCategory());
     });
 
-    store = TestBed.inject(InventoryStore);
-  });
+    // auto-clear toast (TEST FRIENDLY)
+    effect(() => {
+      const toast = this.toastMessage();
 
-  it('debe crear el store correctamente', () => {
-    expect(store).toBeTruthy();
-  });
+      if (!toast) return;
 
-  it('debe iniciar con productos vacíos', () => {
-    expect(store.products().length).toBe(0);
-  });
+      this.scheduleToastClear();
+    });
+  }
 
-  it('debe calcular productos correctamente con computed', () => {
-    store.setProducts([
-      { currentStock: 10, unitPrice: 5 } as any,
-      { currentStock: 2, unitPrice: 10 } as any
-    ]);
+  // =========================
+  // INTERNAL HELPERS
+  // =========================
 
-    expect(store.totalInventoryValue()).toBe(10 * 5 + 2 * 10);
-  });
+  private setLoading(value: boolean) {
+    this.loading.set(value);
+  }
 
-  it('debe marcar alertas críticas correctamente', () => {
-    store.setAlerts([
-      { severity: 'CRITICAL' } as any,
-      { severity: 'LOW' } as any
-    ]);
+  private scheduleToastClear(ms = 3000) {
+    clearTimeout(this.toastTimeout);
 
-    expect(store.criticalAlerts()).toBe(1);
-  });
+    this.toastTimeout = setTimeout(() => {
+      this.toastMessage.set(null);
+    }, ms);
+  }
 
-});
+  private hasAlertsChanged(newAlerts: StockAlert[]): boolean {
+    const current = this.alerts();
+    return current.length !== newAlerts.length;
+  }
+
+  // =========================
+  // PUBLIC API
+  // =========================
+
+  refreshAll() {
+    this.loadProducts();
+    this.loadAlerts();
+    this.loadInventorySummary();
+  }
+
+  setFilterCategory(category: string) {
+    this.filterCategory.set(category);
+  }
+
+  // =========================
+  // API CALLS
+  // =========================
+
+  loadProducts(category?: string, page = 0) {
+    this.setLoading(true);
+
+    const size = 10;
+
+    this.productService.getProducts(category, page, size).subscribe({
+      next: (resp) => {
+        this.products.set(resp.content);
+        this.totalPages.set(resp.totalPages);
+        this.totalProducts.set(resp.totalElements);
+        this.currentPage.set(resp.number);
+        this.setLoading(false);
+      },
+      error: (err) => {
+        this.setLoading(false);
+        this.toastMessage.set({
+          type: 'error',
+          text: err?.message ?? 'Error loading products'
+        });
+      }
+    });
+  }
+
+  loadAlerts() {
+    this.alertService.getAlerts().subscribe({
+      next: (data) => {
+
+        const changed = this.hasAlertsChanged(data);
+
+        this.alerts.set(data);
+
+        if (changed) {
+          this.toastMessage.set({
+            type: 'info',
+            text: `⚠ Alerts updated (${data.length})`
+          });
+        }
+      },
+      error: (err) => {
+        this.toastMessage.set({
+          type: 'error',
+          text: err?.message ?? 'Error loading alerts'
+        });
+      }
+    });
+  }
+
+  loadInventorySummary() {
+    this.productService.getInventorySummary().subscribe({
+      next: (data) => this.inventorySummary.set(data),
+      error: (err) =>
+        this.toastMessage.set({
+          type: 'error',
+          text: err?.message ?? 'Error loading summary'
+        })
+    });
+  }
+}

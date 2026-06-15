@@ -162,7 +162,7 @@ export class InventoryStore {
     });
   }
 
-    loadInventorySummary() {
+  loadInventorySummary() {
     this.productService.getInventorySummary().subscribe({
       next: (data) => this.inventorySummary.set(data),
       error: (err) =>
