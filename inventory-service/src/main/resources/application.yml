@@ -2,6 +2,11 @@ spring:
   application:
     name: inventory-service
 
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   datasource:
     url: jdbc:h2:mem:stockflowdb
     username: sa
@@ -90,3 +95,8 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  cors:
+    allowed-origins: http://localhost:4200
+

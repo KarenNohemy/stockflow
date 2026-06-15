@@ -1,0 +1,24 @@
+<div class="card mt-4 p-3 shadow-sm">
+
+  <h5>Advanced Statistics</h5>
+
+  <div class="row text-center">
+
+    <div class="col-md-4">
+      <h6>Average Product Value</h6>
+      <h4>{{ avgProductValue() | currency }}</h4>
+    </div>
+
+    <div class="col-md-4">
+      <h6>Low Stock Products</h6>
+      <h4 class="text-warning">{{ lowStockCount() }}</h4>
+    </div>
+
+    <div class="col-md-4">
+      <h6>Total Units in Stock</h6>
+      <h4>{{ totalUnits() }}</h4>
+    </div>
+
+  </div>
+
+</div>

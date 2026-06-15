@@ -1,0 +1,172 @@
+<div class="container mt-4">
+
+  <!-- LOADING -->
+  <div *ngIf="store.loading()" class="text-center my-3">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <h2 class="mb-4">Inventory Dashboard</h2>
+
+  <!-- KPI CARDS -->
+  <div class="row g-3">
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>Total Products</h6>
+        <h3>{{ store.inventorySummary()?.totalProducts }}</h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>Critical Alerts</h6>
+        <h3 class="text-danger">{{ store.criticalAlerts() }}</h3>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6>Total Inventory Value</h6>
+        <h3>{{ store.inventorySummary()?.totalInventoryValue | currency }}</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Products</h4>
+
+      <input
+        type="text"
+        class="form-control w-25"
+        placeholder="Filter by category..."
+        (input)="onFilterChange($any($event.target).value)"
+      />
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+
+        <thead class="table-dark">
+          <tr>
+            <th>SKU</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Min Stock</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let p of store.products()">
+
+            <td>{{ p.sku }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.currentStock }}</td>
+            <td>{{ p.minStock }}</td>
+            <td>{{ p.unitPrice | currency }}</td>
+
+            <td>
+              <span class="badge px-3 py-2" [ngClass]="getStockClass(p)">
+                {{ getStockLabel(p) }}
+              </span>
+            </td>
+
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="showHistory(p.id)">
+                View History
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+
+      <div class="d-flex justify-content-center mt-4">
+
+        <nav>
+          <ul class="pagination pagination-sm align-items-center m-0">
+
+            <li class="page-item"
+                [class.disabled]="store.currentPage() === 0">
+
+              <button class="page-link"
+                      (click)="changePage(store.currentPage() - 1)">
+                Previous
+              </button>
+            </li>
+
+            <li class="page-item disabled">
+              <span class="page-link bg-light text-dark fw-bold">
+                {{ store.currentPage() + 1 }} / {{ store.totalPages() }}
+              </span>
+            </li>
+
+            <li class="page-item"
+                [class.disabled]="store.currentPage() + 1 >= store.totalPages()">
+
+              <button class="page-link"
+                      (click)="changePage(store.currentPage() + 1)">
+                Next
+              </button>
+            </li>
+
+          </ul>
+        </nav>
+
+      </div>
+
+      </table>
+    </div>
+
+    <!-- MOVEMENT HISTORY -->
+    @defer (when selectedProductId() !== null) {
+
+      <app-movement-history
+        [productId]="selectedProductId()!">
+      </app-movement-history>
+
+    } @placeholder {
+      <div class="card mt-4 p-4">
+        Select a product to view history
+      </div>
+    }
+
+  </div>
+
+  <!-- ADVANCED STATS -->
+  <div class="mt-5">
+
+    <h4>Advanced Statistics</h4>
+
+    @defer (on viewport) {
+      <app-advanced-stats />
+    } @placeholder {
+      <div class="card p-4 mt-3">
+        <div class="placeholder-glow">
+          <span class="placeholder col-12"></span>
+          <span class="placeholder col-8"></span>
+          <span class="placeholder col-10"></span>
+        </div>
+      </div>
+    } @loading {
+      <div class="text-center mt-3">
+        <div class="spinner-border"></div>
+      </div>
+    } @error {
+      <div class="alert alert-danger mt-3">
+        Error loading advanced statistics
+      </div>
+    }
+
+  </div>
+
+</div>

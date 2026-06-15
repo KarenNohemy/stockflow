@@ -1,1 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+.toast-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  color: #fff;
+  z-index: 9999;
+}
+
+.toast-message.success {
+  background: #28a745;
+}
+
+.toast-message.error {
+  background: #dc3545;
+}
+
+.toast-message.info {
+  background: #17a2b8;
+}
+
+.page-link {
+  cursor: pointer;
+  min-width: 90px;
+  text-align: center;
+}
