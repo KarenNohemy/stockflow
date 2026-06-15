@@ -64,8 +64,10 @@ class ProductControllerTest {
 
         InventorySummaryResponse response =
                 new InventorySummaryResponse(
-                        BigDecimal.valueOf(1000),
-                        10L
+                        2,
+                        BigDecimal.valueOf(100),
+                        50,
+                        1
                 );
 
         when(productService.getInventorySummary())
@@ -73,6 +75,6 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/api/v1/products/summary"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalProducts").value(10));
+                .andExpect(jsonPath("$.totalProducts").value(2));
     }
 }
