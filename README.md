@@ -27,7 +27,7 @@ stockflow/
 ## Backend
 
 * Java 21
-* Spring Boot 3
+* Spring Boot 3.5
 * Spring Data JPA
 * H2 Database
 * Spring Validation
@@ -39,7 +39,7 @@ stockflow/
 
 ## Frontend
 
-* Angular 20
+* Angular 18
 * TypeScript
 * Bootstrap 5
 * Angular Signals
